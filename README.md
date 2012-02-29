@@ -12,9 +12,9 @@ Level 01
 
 On observing that the system call within level01.c made an unchecked
 call to 'date' without a full path specified I created a local date
-file and set it to the local path. That file was simple shell script
-containing 'cat /home/level02/.password'.
+file and set it to the local path.
 
+    level01@ctf:/tmp/tmp.8N0qqvoaVu$ echo 'cat /home/level02/.password' > date
     level01@ctf:/tmp/tmp.8N0qqvoaVu$ export PATH=/tmp/tmp.8N0qqvoaVu:$PATH
     level01@ctf:/tmp/tmp.8N0qqvoaVu$ chmod a+x date
     level01@ctf:/tmp/tmp.8N0qqvoaVu$ /levels/level01
@@ -23,10 +23,9 @@ containing 'cat /home/level02/.password'.
 Level 02
 --------
 
-Level 2 uses the contents of the clients cookie to read a file without
-escaping the contents. Via a browser I modified the cookie set by the
-level to the following and the password was printed as part of the web
-page.
+Level 2 uses the contents of the client's cookie to read a file without
+escaping the contents. Via a browser I modified the cookie to the following 
+and the password was printed on reloading the page.
 
     Change cookie to ../../home/level03/.password
     Or0m4UX07b
@@ -40,14 +39,13 @@ Outside of level 6 I think I spent more time on this level than any of
 the other ones.
 
 On reading level 3's source code I noticed that it was executing the
-function via an array of function pointers. However the selection
-mechanism used an argument which only checked for positive numbers >= 3
-and not for number < 0.
+function via an array of pointers to functions. However the selection
+mechanism used an argument which only checked for positive numbers >= 3.
 
-After spending more time with it and gdb I realized you could select a negative
+After spending some time with gdb I realized you could select a negative
 number which pointed to a specific location in the string buffer you
-pass as an argument as well. After some fiddling I provided the memory
-address of the deprected run function.
+pass as an argument. After some fiddling I provided the memory
+address of the deprecated run function.
 
     level03@ctf4:/tmp/tmp.uuCAtV5Uog$ /levels/level03 -21 'cat /home/level04/.password;'$'\x5b'$'\x87'$'\x04'$'\x08'
     i5cBbPvPCpcP
@@ -62,8 +60,8 @@ overflows for dummies](http://biblio.l0t3k.net/b0f/en/BOFwithperl.txt). With som
 able to make it work for the level 4 binary. It works about 50% of the
 time. From what I understand Linux uses some sort of stack randomization
 to prevent this sort of attack. From reading other reports online there
-is a way to get a dterministic solution but I didn't take the time to
-expore that.
+is a way to get a deterministic solution but I didn't take the time to
+explore that.
 
     Offset:-994Address: 0xffa368fe
     Executing
@@ -79,9 +77,9 @@ Level 05
 --------
 
 After looking at the python web server and running it locally. I noticed
-that it wasn't properly escaping user input and allowed a file
-containing executable code to be written to. I pickled up a simple
-exploit, started a netcat server listening and passed it through.
+that it wasn't properly escaping user input and allowed me to pass an
+argument with executable code. I pickled up a simple
+exploit, started a netcat and passed it through.
 
     level05@ctf4:/tmp/tmp.7mKxYf6M1c$ nc -l 9333 &
     [1] 24599
@@ -103,18 +101,18 @@ Level 06
 
 Of all the challenges this one
 took the most time. I had heard of and felt I understood the
-implementation of a timing attack but had no idea how hard it would be
+implementation of a timing attack before but had no idea how hard it would be
 to actually implement.
 
-First I tried something written in ruby to test the time taken to run
+First I tried a quick program written in ruby to test the time taken to run
 the command, however I saw very little difference in how fast something
 failed. Given that I was initially testing for the difference between 1
-variable check and two and the precision of the ruby clock was only in
+and two variable checks and the precision of the ruby clock was only in
 nanoseconds this failed right away.
 
 Then I tried an [implementation](https://github.com/dividuum/stripe-ctf) that already existed online simply to
-see if they could work given that many of the servers were under heavy
-load and actively running out of forks. But even the supposed solution
+see if it could work given that many of the servers were under heavy
+load and were being actively fork bombed. However the solution
 above failed to work for me as it seems to depend on the binary forking
 and reporting failure almost immediately which I wasn't even able to
 replicate locally.
@@ -126,7 +124,7 @@ longer to run than a normal character check and therefore with
 microsecond precision you can determine where the failure occured.
 
 This solution worked perfectly for me locally but I had to tune it on
-stripe's servers in order to get it to work. I'm not sure if I was
+Stripe's servers in order to get it to work. I'm not sure if I was
 reading the buffer incorrectly, the machine was overloaded or if my code
 just runs in a way that I'm not expecting. Either way with some fine
 tuning and extra sanity checks I was able to get it to run against the password file
